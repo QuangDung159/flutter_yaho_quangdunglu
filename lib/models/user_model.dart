@@ -1,5 +1,5 @@
 class UserModel {
-  final String id;
+  final int id;
   final String email;
   final String firstName;
   final String lastName;
@@ -28,35 +28,7 @@ class UserModel {
 
 List<UserModel> listDummy = [
   UserModel(
-    id: '1',
-    email: 'email',
-    firstName: 'firstName',
-    lastName: 'lastName',
-    avatar: 'https://reqres.in/img/faces/1-image.jpg',
-  ),
-    UserModel(
-    id: '2',
-    email: 'email',
-    firstName: 'firstName',
-    lastName: 'lastName',
-    avatar: 'https://reqres.in/img/faces/1-image.jpg',
-  ),
-    UserModel(
-    id: '3',
-    email: 'email',
-    firstName: 'firstName',
-    lastName: 'lastName',
-    avatar: 'https://reqres.in/img/faces/1-image.jpg',
-  ),
-    UserModel(
-    id: '4',
-    email: 'email',
-    firstName: 'firstName',
-    lastName: 'lastName',
-    avatar: 'https://reqres.in/img/faces/1-image.jpg',
-  ),
-    UserModel(
-    id: '5',
+    id: 1,
     email: 'email',
     firstName: 'firstName',
     lastName: 'lastName',

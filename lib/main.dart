@@ -1,5 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_yaho_quangdunglu/main_view_model.dart';
+import 'package:flutter_yaho_quangdunglu/models/user_model.dart';
+import 'package:flutter_yaho_quangdunglu/widgets/grid_item.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,6 +32,22 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final mainViewMode = MainViewModel();
+
+  @override
+  void initState() {
+    super.initState();
+
+    mainViewMode.fetchList();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    mainViewMode.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,106 +55,46 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       backgroundColor: Colors.grey[100],
-      body: GridView.count(
-        childAspectRatio: 0.69,
-        padding: const EdgeInsets.only(
-          left: 10,
-          right: 10,
-          top: 10,
-          bottom: 20,
-        ),
-        crossAxisCount: 2,
-        primary: false,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        children: const [
-          GridItem(),
-          GridItem(),
-          GridItem(),
-          GridItem(),
-          GridItem(),
-          GridItem(),
-          GridItem(),
-        ],
+      body: StreamBuilder(
+        stream: mainViewMode.listUserStream,
+        builder: (context, snapshot) {
+          List<UserModel>? listUser = snapshot.data;
+
+          return GridView.count(
+            childAspectRatio: 0.69,
+            padding: const EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 10,
+              bottom: 20,
+            ),
+            crossAxisCount: 2,
+            primary: false,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            children: renderListItem(listUser),
+          );
+        },
       ),
     );
   }
-}
 
-class GridItem extends StatelessWidget {
-  const GridItem({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    double gridItemWidth = (MediaQuery.of(context).size.width - 30) / 2;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: gridItemWidth,
-            height: gridItemWidth,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(6),
-                topRight: Radius.circular(6),
-              ),
-              child: CachedNetworkImage(
-                imageUrl: 'https://reqres.in/img/faces/1-image.jpg',
-                imageBuilder: (context, imageProvider) => Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                placeholder: (context, url) => Container(
-                  alignment: Alignment.center,
-                  width: 30,
-                  height: 30,
-                  child: const CircularProgressIndicator(),
-                ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
-            ),
+  List<Widget> renderListItem(List<UserModel>? listUser) {
+    List<Widget> listRendered = [];
+    if (listUser == null || listUser.isEmpty) {
+      listRendered.add(
+        const Text('List empty'),
+      );
+    } else {
+      for (var element in listUser) {
+        listRendered.add(
+          GridItem(
+            user: element,
           ),
-          const SizedBox(
-            height: 12,
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'FirstName last',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
-                SizedBox(
-                  height: 4,
-                ),
-                Text(
-                  'emma.wong@reqres.in',
-                  style: TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          )
-        ],
-      ),
-    );
+        );
+      }
+    }
+
+    return listRendered;
   }
 }
