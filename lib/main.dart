@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Flutter Demo'),
     );
   }
 }
@@ -36,7 +36,9 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
+      backgroundColor: Colors.grey[100],
       body: GridView.count(
+        childAspectRatio: 0.69,
         padding: const EdgeInsets.only(
           left: 10,
           right: 10,
@@ -48,6 +50,12 @@ class _MyHomePageState extends State<MyHomePage> {
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
         children: const [
+          GridItem(),
+          GridItem(),
+          GridItem(),
+          GridItem(),
+          GridItem(),
+          GridItem(),
           GridItem(),
         ],
       ),
@@ -62,27 +70,69 @@ class GridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double gridItemWidth = (MediaQuery.of(context).size.width - 30) / 2;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.amber[50],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120,
-            height: 120,
-            child: CachedNetworkImage(
-              imageUrl: 'https://reqres.in/img/faces/2-image.jpg3',
-              placeholder: (context, url) => Container(
-                alignment: Alignment.center,
-                width: 30,
-                height: 30,
-                child: const CircularProgressIndicator(),
+            width: gridItemWidth,
+            height: gridItemWidth,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(6),
+                topRight: Radius.circular(6),
               ),
-              errorWidget: (context, url, error) => const Center(
-                child: Icon(Icons.error),
+              child: CachedNetworkImage(
+                imageUrl: 'https://reqres.in/img/faces/1-image.jpg',
+                imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                placeholder: (context, url) => Container(
+                  alignment: Alignment.center,
+                  width: 30,
+                  height: 30,
+                  child: const CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
+            ),
+          ),
+          const SizedBox(
+            height: 12,
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'FirstName last',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                SizedBox(
+                  height: 4,
+                ),
+                Text(
+                  'emma.wong@reqres.in',
+                  style: TextStyle(
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
           )
         ],
