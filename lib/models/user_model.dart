@@ -14,24 +14,12 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    {
-      return UserModel(
-        id: json['id'],
-        email: json['email'],
-        firstName: json['first_name'],
-        lastName: json['last_name'],
-        avatar: json['avatar'],
-      );
-    }
+    return UserModel(
+      id: json['id'],
+      email: json['email'],
+      firstName: json['first_name'],
+      lastName: json['last_name'],
+      avatar: json['avatar'],
+    );
   }
 }
-
-List<UserModel> listDummy = [
-  UserModel(
-    id: 1,
-    email: 'email',
-    firstName: 'firstName',
-    lastName: 'lastName',
-    avatar: 'https://reqres.in/img/faces/1-image.jpg',
-  ),
-];

@@ -32,20 +32,57 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final mainViewMode = MainViewModel();
+  int _page = 1;
+  bool _canLoadMore = true;
+  bool _loading = true;
+
+  final _mainViewMode = MainViewModel();
+  final List<UserModel> _listUser = [];
+  final ScrollController _controller = ScrollController();
+
+  static const double _endReachedThreshold = 200;
+  static const int _itemsPerPage = 6;
 
   @override
   void initState() {
     super.initState();
+    _controller.addListener(_onScroll);
+    fetchList(_page);
+  }
 
-    mainViewMode.fetchList();
+  Future<void> fetchList(int page) async {
+    _loading = true;
+
+    List<UserModel> listUserFetched = await _mainViewMode.fetchList(page);
+    setState(() {
+      _listUser.addAll(listUserFetched);
+
+      if (listUserFetched.length < _itemsPerPage) {
+        _canLoadMore = false;
+      }
+
+      _loading = false;
+    });
+  }
+
+  void _onScroll() {
+    if (!_controller.hasClients || _loading) return;
+
+    final thresholdReached =
+        _controller.position.extentAfter < _endReachedThreshold;
+
+    if (thresholdReached) {
+      fetchList(_page + 1);
+      setState(() {
+        _page += 1;
+      });
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-
-    mainViewMode.dispose();
+    _mainViewMode.dispose();
   }
 
   @override
@@ -55,26 +92,38 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       backgroundColor: Colors.grey[100],
-      body: StreamBuilder(
-        stream: mainViewMode.listUserStream,
-        builder: (context, snapshot) {
-          List<UserModel>? listUser = snapshot.data;
-
-          return GridView.count(
-            childAspectRatio: 0.69,
-            padding: const EdgeInsets.only(
-              left: 10,
-              right: 10,
-              top: 10,
-              bottom: 20,
+      body: CustomScrollView(
+        controller: _controller,
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(10),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                childAspectRatio: 0.69,
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return GridItem(user: _listUser[index]);
+                },
+                childCount: _listUser.length,
+              ),
             ),
-            crossAxisCount: 2,
-            primary: false,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            children: renderListItem(listUser),
-          );
-        },
+          ),
+          SliverToBoxAdapter(
+            child: _canLoadMore
+                ? Container(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    alignment: Alignment.center,
+                    child: const CircularProgressIndicator(),
+                  )
+                : const SizedBox(
+                  height: 16,
+                ),
+          )
+        ],
       ),
     );
   }
