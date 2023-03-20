@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -35,15 +36,56 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-          ],
+      body: GridView.count(
+        padding: const EdgeInsets.only(
+          left: 10,
+          right: 10,
+          top: 10,
+          bottom: 20,
         ),
+        crossAxisCount: 2,
+        primary: false,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        children: const [
+          GridItem(),
+        ],
+      ),
+    );
+  }
+}
+
+class GridItem extends StatelessWidget {
+  const GridItem({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.amber[50],
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Column(
+        children: [
+          SizedBox(
+            width: 120,
+            height: 120,
+            child: CachedNetworkImage(
+              imageUrl: 'https://reqres.in/img/faces/2-image.jpg3',
+              placeholder: (context, url) => Container(
+                alignment: Alignment.center,
+                width: 30,
+                height: 30,
+                child: const CircularProgressIndicator(),
+              ),
+              errorWidget: (context, url, error) => const Center(
+                child: Icon(Icons.error),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
