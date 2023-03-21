@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_yaho_quangdunglu/main_view_model.dart';
 import 'package:flutter_yaho_quangdunglu/models/user_model.dart';
+import 'package:flutter_yaho_quangdunglu/widgets/grid_item.dart';
 import 'package:flutter_yaho_quangdunglu/widgets/grid_user.dart';
 import 'package:flutter_yaho_quangdunglu/widgets/list_user.dart';
 
@@ -36,13 +37,12 @@ class _MyHomePageState extends State<MyHomePage> {
   int _page = 1;
   bool _canLoadMore = true;
   bool _loading = true;
-  bool _isGrid = true;
 
-  final _mainViewMode = MainViewModel();
+  final _mainViewModel = MainViewModel();
   final List<UserModel> _listUser = [];
   final ScrollController _controller = ScrollController();
 
-  // static const double _endReachedThreshold = MediaQuery.of(context).size.height;
+  static const double _endReachedThreshold = 200;
   static const int _itemsPerPage = 6;
 
   @override
@@ -55,11 +55,10 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> fetchList(int page) async {
     _loading = true;
 
-    List<UserModel> listUserFetched = await _mainViewMode.fetchList(page);
+    List<UserModel> listUserFetched = await _mainViewModel.fetchList(page);
     setState(() {
       _listUser.addAll(listUserFetched);
 
-      // if list fetched out of data => off indicator
       if (listUserFetched.length < _itemsPerPage) {
         _canLoadMore = false;
       }
@@ -71,9 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onScroll() {
     if (!_controller.hasClients || _loading) return;
 
-    // check scroll to end
     final thresholdReached =
-        _controller.position.extentAfter < MediaQuery.of(context).size.height;
+        _controller.position.extentAfter < _endReachedThreshold;
 
     if (thresholdReached) {
       fetchList(_page + 1);
@@ -86,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void dispose() {
     super.dispose();
-    _mainViewMode.dispose();
+    _mainViewModel.dispose();
   }
 
   @override
@@ -95,21 +93,36 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
-          IconButton(
-            onPressed: () => setState(() {
-              _isGrid = !_isGrid;
-            }),
-            icon: Icon(_isGrid ? Icons.view_list_sharp : Icons.grid_view_sharp),
-          ),
+          StreamBuilder<bool>(
+            stream: _mainViewModel.displayGridStream,
+            builder: (context, snapshot) {
+              bool isGrid = snapshot.hasData ? snapshot.data! : true;
+
+              return IconButton(
+                onPressed: () => _mainViewModel.displayGridSink.add(isGrid),
+                icon: Icon(
+                  isGrid ? Icons.view_list_sharp : Icons.grid_view_sharp,
+                ),
+              );
+            },
+          )
         ],
       ),
       backgroundColor: Colors.grey[100],
       body: CustomScrollView(
         controller: _controller,
         slivers: [
-          _isGrid
-              ? GridUser(listUser: _listUser)
-              : ListUser(listUser: _listUser),
+          StreamBuilder<bool>(
+            stream: _mainViewModel.displayGridStream,
+            builder: (context, snapshot) {
+              bool isGrid = snapshot.hasData ? snapshot.data! : true;
+              if (isGrid) {
+                return GridUser(listUser: _listUser);
+              } else {
+                return ListUser(listUser: _listUser);
+              }
+            },
+          ),
           SliverToBoxAdapter(
             child: _canLoadMore
                 ? Container(
@@ -124,5 +137,24 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
+  }
+
+  List<Widget> renderListItem(List<UserModel>? listUser) {
+    List<Widget> listRendered = [];
+    if (listUser == null || listUser.isEmpty) {
+      listRendered.add(
+        const Text('List empty'),
+      );
+    } else {
+      for (var element in listUser) {
+        listRendered.add(
+          GridItem(
+            user: element,
+          ),
+        );
+      }
+    }
+
+    return listRendered;
   }
 }
