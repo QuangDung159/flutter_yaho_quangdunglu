@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_yaho_quangdunglu/main_view_model.dart';
 import 'package:flutter_yaho_quangdunglu/models/user_model.dart';
 import 'package:flutter_yaho_quangdunglu/widgets/grid_item.dart';
+import 'package:flutter_yaho_quangdunglu/widgets/grid_user.dart';
+import 'package:flutter_yaho_quangdunglu/widgets/list_user.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _page = 1;
   bool _canLoadMore = true;
   bool _loading = true;
+  bool _isGrid = true;
 
   final _mainViewMode = MainViewModel();
   final List<UserModel> _listUser = [];
@@ -90,28 +93,22 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () => setState(() {
+              _isGrid = !_isGrid;
+            }),
+            icon: Icon(_isGrid ? Icons.switch_left : Icons.switch_right),
+          ),
+        ],
       ),
       backgroundColor: Colors.grey[100],
       body: CustomScrollView(
         controller: _controller,
         slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.all(10),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                childAspectRatio: 0.69,
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return GridItem(user: _listUser[index]);
-                },
-                childCount: _listUser.length,
-              ),
-            ),
-          ),
+          _isGrid
+              ? GridUser(listUser: _listUser)
+              : ListUser(listUser: _listUser),
           SliverToBoxAdapter(
             child: _canLoadMore
                 ? Container(
@@ -120,8 +117,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: const CircularProgressIndicator(),
                   )
                 : const SizedBox(
-                  height: 16,
-                ),
+                    height: 16,
+                  ),
           )
         ],
       ),
