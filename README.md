@@ -1,15 +1,17 @@
 # flutter_yaho_quangdunglu
 
-A new Flutter project.
+A Yaho Coding Challenge Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Run the following commands in your root of the project to compile and start:
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```
+flutter pub get
+```
+```
+flutter run
+```
 
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
