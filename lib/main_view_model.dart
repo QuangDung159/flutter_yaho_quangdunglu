@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_yaho_quangdunglu/models/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:rxdart/subjects.dart';
@@ -9,7 +10,7 @@ class MainViewModel {
   Future<List<UserModel>> fetchList(int page) async {
     try {
       final res =
-          await http.get(Uri.parse('https://reqres.in/api/1users?page=$page'));
+          await http.get(Uri.parse('https://reqres.in/api/users?page=$page'));
       Iterable listUserJson = jsonDecode(res.body)['data'];
 
       List<UserModel> listUser = List<UserModel>.from(
@@ -19,7 +20,9 @@ class MainViewModel {
       );
 
       return listUser;
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('Error: ${e.toString()}');
+      debugPrint(stack.toString());
       return [];
     }
   }

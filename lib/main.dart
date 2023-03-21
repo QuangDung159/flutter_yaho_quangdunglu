@@ -104,25 +104,33 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       backgroundColor: Colors.grey[100],
-      body: CustomScrollView(
-        controller: _controller,
-        slivers: [
-          _isGrid
-              ? GridUser(listUser: _listUser)
-              : ListUser(listUser: _listUser),
-          SliverToBoxAdapter(
-            child: _canLoadMore
-                ? Container(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    alignment: Alignment.center,
-                    child: const CircularProgressIndicator(),
-                  )
-                : const SizedBox(
-                    height: 16,
-                  ),
-          )
-        ],
-      ),
+      body: renderScrollView(),
+    );
+  }
+
+  Widget renderScrollView() {
+    if (_loading == false && _listUser.isEmpty) {
+      return const Center(
+        child: Text('List empty'),
+      );
+    }
+
+    return CustomScrollView(
+      controller: _controller,
+      slivers: [
+        _isGrid ? GridUser(listUser: _listUser) : ListUser(listUser: _listUser),
+        SliverToBoxAdapter(
+          child: _canLoadMore
+              ? Container(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  alignment: Alignment.center,
+                  child: const CircularProgressIndicator(),
+                )
+              : const SizedBox(
+                  height: 16,
+                ),
+        )
+      ],
     );
   }
 }

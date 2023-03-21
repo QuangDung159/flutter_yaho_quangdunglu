@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_yaho_quangdunglu/main_view_model.dart';
 import 'package:flutter_yaho_quangdunglu/models/user_model.dart';
-import 'package:flutter_yaho_quangdunglu/widgets/grid_item.dart';
 import 'package:flutter_yaho_quangdunglu/widgets/grid_user.dart';
 import 'package:flutter_yaho_quangdunglu/widgets/list_user.dart';
 
@@ -109,52 +108,43 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       backgroundColor: Colors.grey[100],
-      body: CustomScrollView(
-        controller: _controller,
-        slivers: [
-          StreamBuilder<bool>(
-            stream: _mainViewModel.displayGridStream,
-            builder: (context, snapshot) {
-              bool isGrid = snapshot.hasData ? snapshot.data! : true;
-              if (isGrid) {
-                return GridUser(listUser: _listUser);
-              } else {
-                return ListUser(listUser: _listUser);
-              }
-            },
-          ),
-          SliverToBoxAdapter(
-            child: _canLoadMore
-                ? Container(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    alignment: Alignment.center,
-                    child: const CircularProgressIndicator(),
-                  )
-                : const SizedBox(
-                    height: 16,
-                  ),
-          )
-        ],
-      ),
+      body: renderScrollView(),
     );
   }
 
-  List<Widget> renderListItem(List<UserModel>? listUser) {
-    List<Widget> listRendered = [];
-    if (listUser == null || listUser.isEmpty) {
-      listRendered.add(
-        const Text('List empty'),
+  Widget renderScrollView() {
+    if (_loading == false && _listUser.isEmpty) {
+      return const Center(
+        child: Text('List empty'),
       );
-    } else {
-      for (var element in listUser) {
-        listRendered.add(
-          GridItem(
-            user: element,
-          ),
-        );
-      }
     }
 
-    return listRendered;
+    return CustomScrollView(
+      controller: _controller,
+      slivers: [
+        StreamBuilder<bool>(
+          stream: _mainViewModel.displayGridStream,
+          builder: (context, snapshot) {
+            bool isGrid = snapshot.hasData ? snapshot.data! : true;
+            if (isGrid) {
+              return GridUser(listUser: _listUser);
+            } else {
+              return ListUser(listUser: _listUser);
+            }
+          },
+        ),
+        SliverToBoxAdapter(
+          child: _canLoadMore
+              ? Container(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  alignment: Alignment.center,
+                  child: const CircularProgressIndicator(),
+                )
+              : const SizedBox(
+                  height: 16,
+                ),
+        )
+      ],
+    );
   }
 }
